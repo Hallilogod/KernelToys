@@ -73,7 +73,8 @@ if the offset is wrong by just one single number then your system will most like
 
 **A:** kdu.exe uses vulnerabilities in drivers to write custom data to the system DSE flags , which is considered malicious
 if you are too scared and dont trust me then you can jump to the Manual driver setup section, or if you dont trust me at all delete kerneltoys or use it in a VM.... actually i HIGHLY recommend using it in a vm anyways
-# --FAQ end----------
+
+**--FAQ end----------**
 
 
 # Manual driver setup:
@@ -104,13 +105,13 @@ to stop the driver you can simply use the -stopdriver argument from kerneltoys a
 but if you want to do this manually too you can use these commands:
 
 sc stop kerneltoys         // stops the driver
+
 sc delete kerneltoys       // deletes the service
 
 
 if you just want to stop the driver but dont want to recreate it every time you can just do sc stop and dont do sc delete kerneltoys, that way you can just do sc start kerneltoys again without having to delete the service. 
 the kerneltoys.sys file will NOT be deleted if you do sc delete kerneltoys, oh and you NEED to name the service you create "kerneltoys", otherwise it wont work
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
