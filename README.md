@@ -2,10 +2,9 @@
 
 to get a quick overview run kerneltoys.exe without arguments in a command prompt
 
-KernelToys is a CLI toolbox that is split into two parts files: the usermode executable (KernelToys.exe) and a kernel driver (KernelToysDriver.sys)
+KernelToys is a CLI toolbox that is split into two parts: the usermode executable (KernelToys.exe) and a kernel driver (KernelToysDriver.sys)
 
-Kerneltoys contains various tools like terminating processes, deleting symbolic links that probably dont sound special, but they're designed to bypass as many restrictions as possible 
-which is why the heart of it is a kernel driver; you bypass many restrictions out of the box and have access to ALMOST all parts of the os.
+Kerneltoys contains various tools like terminating processes, deleting symbolic links that probably dont sound special, but they're designed to bypass as many restrictions as possible, which is why the heart of it is a kernel driver; you bypass many restrictions out of the box and have access to ALMOST all parts of the os.
 
 because the kernel is SUPER MEGA SENSISTIVE LIKE A LITTLE DISCORD KITTEN you have to be CAREFUL, first because you can easily destroy your os with kerneltoys, second because if you use it incorrectly
 your operating system might crash. For example: if you pass an invalid pid to protectedprocess it will still write the memory, but not to the correct location (because it doesnt exist) and it will
@@ -16,7 +15,7 @@ but there are many signed kernel drivers that contain vulnerabilities that kdu u
 but you quickly have to revert the changes after writing 0 because otherwise the system will crash). 
 drv64.dll contains the vulnerable drivers.
 
-**I DID NOT MAKE KDU, ALL CREDITS GO TO https://github.com/hfiref0x/KDU**
+**I DID NOT MAKE KDU, ALL CREDITS FOR KDU GO TO https://github.com/hfiref0x/KDU**
 
 luckly microsoft prefers to add more fancy useless stuff to windows 11 instead of fixing vulnerable drivers, this is why this mostly works (they fixed some of the drivers but not all of them)
 
