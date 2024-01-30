@@ -1,23 +1,21 @@
 # Welcome to kerneltoys!
 
-to get a quick overview run kerneltoys.exe without arguments in a command prompt
+To get a quick overview, run kerneltoys.exe without arguments in a Command Prompt.
 
 KernelToys is a CLI toolbox that is split into two parts: the usermode executable (KernelToys.exe) and a kernel driver (KernelToysDriver.sys)
 
-Kerneltoys contains various tools like terminating processes, deleting symbolic links that probably dont sound special, but they're designed to bypass as many restrictions as possible, which is why the heart of it is a kernel driver; you bypass many restrictions out of the box and have access to ALMOST all parts of the os.
+Kerneltoys contains various tools like terminating processes or deleting symbolic links that probably dont sound special, but they're designed to bypass as many restrictions as possible;
+which is why the heart of it is a kernel driver; you bypass many restrictions out of the box and have access to ALMOST all parts of the OS.
 
-because the kernel is SUPER MEGA SENSISTIVE LIKE A LITTLE DISCORD KITTEN you have to be CAREFUL, first because you can easily destroy your os with kerneltoys, second because if you use it incorrectly
-your operating system might crash. For example: if you pass an invalid pid to protectedprocess it will still write the memory, but not to the correct location (because it doesnt exist) and it will
-corrupt other stuff, so make sure that you know what you're doing. (almost all tools will just give you an error if you use them incorrectly).
+Because the kernel is SUPER MEGA SENSISTIVE LIKE A LITTLE DISCORD KITTEN you have to be CAREFUL, first because you can easily destroy your OS with kerneltoys, second because if you use it incorrectly, your operating system might crash. For example: if you pass an invalid PID to protectedprocess, it will still write to the memory, but not to the correct location (because it doesnt exist) and it will corrupt other stuff, so make sure that you know what you're doing. (almost all tools will just give you an error if you use them incorrectly).
 
-kdu.exe (kernel driver utility) is used for bypassing the driver signature enforcement (DSE) that would block the kerneltoys driver to start because its not signed, 
-but there are many signed kernel drivers that contain vulnerabilities that kdu uses to write to kernel memory (by writing 0 to the DSE flags you disable the dse, 
+kdu.exe (kernel driver utility) is used for bypassing the driver signature enforcement (DSE) that would block the kerneltoys driver to start because its not signed, but there are many signed kernel drivers that contain vulnerabilities that kdu uses to write to kernel memory (by writing 0 to the DSE flags you disable the dse, 
 but you quickly have to revert the changes after writing 0 because otherwise the system will crash). 
 drv64.dll contains the vulnerable drivers.
 
-**I DID NOT MAKE KDU, ALL CREDITS FOR KDU GO TO https://github.com/hfiref0x/KDU**
+**I DID NOT MAKE KDU, ALL CREDITS GO TO https://github.com/hfiref0x/KDU**
 
-luckly microsoft prefers to add more fancy useless stuff to windows 11 instead of fixing vulnerable drivers, this is why this mostly works (they fixed some of the drivers but not all of them)
+Luckily, Microsoft prefers to add more fancy useless stuff to Windows 11 instead of fixing vulnerable drivers, and this is why this mostly works (they fixed some of the drivers but not all of them).
 
 kerneltoys has two switches you can use to start and stop the driver (startdriver and stopdriver, aliases: sa and so), startdriver will run "kdu -prv %d -dse 0" where -prv %d will select the provider, %d is a number
 and it will try multiple numbers in case one doesnt work (for each number it tries a different driver, in case one doesnt work. a different one might work) and -dse 0 tells kdu to write 0 to the dse flags in kernel memory, 
@@ -25,7 +23,7 @@ then create a service for the driver, start it and then write back the old dse f
 if you dont quickly write back the old flags). The stopdriver option simply stops the driver and deletes the service.
 
 there is a VERY SMALL chance that your system will crash when starting the driver, this is because Ci.dll validates memory areas every few minutes (idk if it is 100% like that but Ci.dll WILL crash the system if the flags are 0 for too long)
-and if it sees the dse flags being at 0 it will crash the system, if Ci checks the flags in the small time period between writing 0 and writing the old flags it will crash the system, this is VERY RARE and only happened to me ONCE, but it is possible 
+and if it sees the DSE flags being at 0 it will crash the system, if Ci checks the flags in the small time period between writing 0 and writing the old flags it will crash the system, this is VERY RARE and only happened to me ONCE, but it is possible 
 so if you get a bluescreen from Ci.dll when starting the driver dont worry, just try again
 
 not every tool in kerneltoys really uses the kernel driver, tools listed under the "User Options" section (when running kerneltoys.exe without arguments) are implemented in 
@@ -73,7 +71,7 @@ in my case the offset is 0x87a (Windows 10 22H2 19045), so i would use the comma
 
 kerneltoys ppl <PID> <none|light|full|max> 0x87a
 
-if the offset is wrong by just one single number then your system will most likely crash :)
+if the offset is wrong by just one single number then your system might crash :)
 
 
 **Q:** why does kdu.exe get detected as malware?
