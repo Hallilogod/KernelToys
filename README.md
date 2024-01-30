@@ -2,10 +2,9 @@
 
 to get a quick overview run kerneltoys.exe without arguments in a command prompt
 
-KernelToys is a CLI toolbox that is split into two parts files: the usermode executable (KernelToys.exe) and a kernel driver (KernelToysDriver.sys)
+KernelToys is a CLI toolbox that is split into two parts: the usermode executable (KernelToys.exe) and a kernel driver (KernelToysDriver.sys)
 
-Kerneltoys contains various tools like terminating processes, deleting symbolic links that probably dont sound special, but they're designed to bypass as many restrictions as possible 
-which is why the heart of it is a kernel driver; you bypass many restrictions out of the box and have access to ALMOST all parts of the os.
+Kerneltoys contains various tools like terminating processes, deleting symbolic links that probably dont sound special, but they're designed to bypass as many restrictions as possible, which is why the heart of it is a kernel driver; you bypass many restrictions out of the box and have access to ALMOST all parts of the os.
 
 because the kernel is SUPER MEGA SENSISTIVE LIKE A LITTLE DISCORD KITTEN you have to be CAREFUL, first because you can easily destroy your os with kerneltoys, second because if you use it incorrectly
 your operating system might crash. For example: if you pass an invalid pid to protectedprocess it will still write the memory, but not to the correct location (because it doesnt exist) and it will
@@ -16,7 +15,7 @@ but there are many signed kernel drivers that contain vulnerabilities that kdu u
 but you quickly have to revert the changes after writing 0 because otherwise the system will crash). 
 drv64.dll contains the vulnerable drivers.
 
-**I DID NOT MAKE KDU, ALL CREDITS GO TO https://github.com/hfiref0x/KDU**
+**I DID NOT MAKE KDU, ALL CREDITS FOR KDU GO TO https://github.com/hfiref0x/KDU**
 
 luckly microsoft prefers to add more fancy useless stuff to windows 11 instead of fixing vulnerable drivers, this is why this mostly works (they fixed some of the drivers but not all of them)
 
@@ -35,6 +34,11 @@ kerneltoys.exe only and dont require the driver to be started.
 
 # FAQ:
 
+**Q:** Can i use kerneltoys for a social media video or something?
+
+**A:** Sure, feel free to use it as long as you give credits, if you do a video about it for example please put the repository link in the description
+
+
 **Q:** HELPP!!! WHAT IS A NT NATIVE PATH???? HOW DO I USE THE DELETEKEY OPTION???
 
 **A:** its a REAL full path, C:\Windows actually isnt a full path, under the hood its \GLOBAL??\C:\Windows, C: is just a symbolic link to \Device\HarddiskVolumeX where X is the partition.
@@ -47,10 +51,12 @@ HKEY_USERS: \Registry\User
 
 HKEY_CLASSES_ROOT and HKEY_CURRENT_USER have no kernel equivalent
 	
+
 **Q:** which version of windows should i use?
 
 **A:** the kerneltoys driver is compiled for Windows 10 x64, i also tested it on windows 11 and it worked, it MIGHT work on 8 / 8.1 but i recommend using windows 10 x64 or maybe 11, remember that every build or other version 
 COULD break some parts of kerneltoys, you knever know what crap microsoft is doing O-O
+
 
 **Q:** what is the protectionoffset in the ppl option? 
 
@@ -68,6 +74,7 @@ in my case the offset is 0x87a (Windows 10 22H2 19045), so i would use the comma
 kerneltoys ppl <PID> <none|light|full|max> 0x87a
 
 if the offset is wrong by just one single number then your system will most likely crash :)
+
 
 **Q:** why does kdu.exe get detected as malware?
 
