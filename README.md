@@ -13,18 +13,17 @@ kdu.exe (kernel driver utility) is used for bypassing the driver signature enfor
 but you quickly have to revert the changes after writing 0 because otherwise the system will crash). 
 drv64.dll contains the vulnerable drivers.
 
-**I DID NOT MAKE KDU, ALL CREDITS GO TO https://github.com/hfiref0x/KDU**
+**I DID NOT MAKE KDU.EXE OR DRV64.DLL! CREDITS GO TO https://github.com/hfiref0x/KDU**
 
 Luckily, Microsoft prefers to add more fancy useless stuff to Windows 11 instead of fixing vulnerable drivers, and this is why this mostly works (they fixed some of the drivers but not all of them).
 
-kerneltoys has two switches you can use to start and stop the driver (startdriver and stopdriver, aliases: sa and so), startdriver will run "kdu -prv %d -dse 0" where -prv %d will select the provider, %d is a number
-and it will try multiple numbers in case one doesnt work (for each number it tries a different driver, in case one doesnt work. a different one might work) and -dse 0 tells kdu to write 0 to the dse flags in kernel memory, 
-then create a service for the driver, start it and then write back the old dse flags (important, if writing back the old flags fails for some reason while the first time it worked then your system will probably bluescreen in the next few minutes
-if you dont quickly write back the old flags). The stopdriver option simply stops the driver and deletes the service.
+Kerneltoys has two switches you can use to start and stop the driver: startdriver and stopdriver (aliases: sa and so), startdriver will run "kdu -prv %d -dse 0" where -prv %d will select the provider, %d is a number and it will try multiple numbers in case one doesnt work
+(for each number it tries a different driver, in case one doesnt work, a different one might work) and -dse 0 tells kdu to write 0 to the dse flags in kernel memory. Then it creates a service for the driver, starts it and then writes back the old dse flags (important! If writing back the old flags fails for some reason while the first time it worked then your system will probably bluescreen in the next few minutes
+if you don't quickly write back the old flags). The stopdriver option simply stops the driver and deletes the service.
 
-there is a VERY SMALL chance that your system will crash when starting the driver, this is because Ci.dll validates memory areas every few minutes (idk if it is 100% like that but Ci.dll WILL crash the system if the flags are 0 for too long)
-and if it sees the DSE flags being at 0 it will crash the system, if Ci checks the flags in the small time period between writing 0 and writing the old flags it will crash the system, this is VERY RARE and only happened to me ONCE, but it is possible 
-so if you get a bluescreen from Ci.dll when starting the driver dont worry, just try again
+There is a VERY SMALL chance that your system will crash when starting the driver (CRITICAL_STRUCTURE_CORRUPTION Ci.dll), this is because the driver signature enforcement is implemented in Ci.dll. The system WILL crash if the dse flags are 0 for too long, a value of 0 seems to be recognized as corrupted. This is VERY RARE and only happened to me like ONCE, but it is possible.
+
+So if you get a bluescreen from Ci.dll CRITICAL_STRUCTURE_CORRUPTION when starting the driver don't worry, just try again, if it keeps happening then something is going terribly wrong and you probably have to jump to manual driver setup.
 
 not every tool in kerneltoys really uses the kernel driver, tools listed under the "User Options" section (when running kerneltoys.exe without arguments) are implemented in 
 kerneltoys.exe only and dont require the driver to be started.
@@ -35,6 +34,11 @@ kerneltoys.exe only and dont require the driver to be started.
 **Q:** Can i use kerneltoys for a social media video or something?
 
 **A:** Sure, feel free to use it as long as you give credits, if you do a video about it for example please put the repository link in the description
+
+
+**Q:** Why is the source code not available?
+
+**A:** Im making it open source pretty soon, im just making the code a bit more readable for the public
 
 
 **Q:** HELPP!!! WHAT IS A NT NATIVE PATH???? HOW DO I USE THE DELETEKEY OPTION???
@@ -58,26 +62,26 @@ COULD break some parts of kerneltoys, you knever know what crap microsoft is doi
 
 **Q:** what is the protectionoffset in the ppl option? 
 
-**A:** this is a bit more complex, the ppl option relies on protected process light, a mechanism in windows to protect processes from injection etc, specific members in a special kernel mode 
+**A:** This is a bit more complex, the ppl option relies on protected process light, a mechanism in windows to protect processes from injection etc, specific members in a special kernel mode 
 struct (if you're a C/C++ dev you know what a struct is) called EPROCESS store the information about each process if its a protected process, or a protected process light (ppl) and how its protected.
-kerneltoys has hardcoded knowledge of the structure of the fields for ppl, but the memory offset of the values in the EPROCESS struct are different for each windows build, kerneltoys also has hardcoded knowledge of these,
-but for new builds you might get a message saying "Couldn't find the protection offset, please pass in the protection offset manually". in this case the build number is unknown and you need to pass in the offset
-manually, to find it you need to use a kernel debugger like WinDbg (lkd) and connect to the local kernel, i wont explain this in depth, you can search this up on the internet, something like "kernel debugging with WinDbg"
-but once in lkd  type "dt nt!_EPROCESS" and hit enter, then search for a line saying something like this:
+Kerneltoys has hardcoded knowledge of the structure of the fields for ppl, but the memory offset of the values in the EPROCESS struct are different for some windows builds, kerneltoys also has hardcoded knowledge of these,
+but for new or weird builds you might get a message saying "Couldn't find the protection offset, please pass in the protection offset manually". in this case the build number is unknown and you need to pass in the offset
+manually. To find it you need to use a kernel debugger like WinDbg (lkd) and connect to the local kernel, i wont explain this in depth, you can search this up on the internet, something like "kernel debugging with WinDbg"
+but once in lkd type "dt nt!_EPROCESS" and hit enter, then search for a line saying something like this:
 
 +0x87a Protection       : _PS_PROTECTION
 
-in my case the offset is 0x87a (Windows 10 22H2 19045), so i would use the command like this:
+In my case the offset is 0x87a (Windows 10 22H2 19045), so i would use the command like this:
 
-kerneltoys ppl <PID> <none|light|full|max> 0x87a
+kerneltoys ppl <PID> <none|light|full|max> 87a
 
-if the offset is wrong by just one single number then your system might crash :)
+If the offset is wrong then your system might crash :) be careful with kernel memory.
 
 
-**Q:** why does kdu.exe get detected as malware?
+**Q:** Why does kdu.exe get detected as malware?
 
-**A:** kdu.exe uses vulnerabilities in drivers to write custom data to the system DSE flags , which is considered malicious
-if you are too scared and dont trust me then you can jump to the Manual driver setup section, or if you dont trust me at all delete kerneltoys or use it in a VM.... actually i HIGHLY recommend using it in a vm anyways
+**A:** kdu.exe uses vulnerabilities in drivers to write custom data to the system DSE flags, which is considered malicious. I kinda recommend turning off your antimalware engine when messing around with kerneltoys, because if your antimalware engine blocks kdu before it can write back the old dse flags then your dse flags will stay at 0, and this will result in the critical structure corruption crash i explained previously.
+if you are too scared and don't trust me then you can jump to the Manual driver setup section, or if you don't trust me at all delete kerneltoys or use it in a VM.... i recommend using it in a VM anyways, kerneltoys is dangerous if used incorrectly. If you just want to experiment with kerneltoys then DON'T do that on your real system, USE A VIRTUAL MACHINE!!
 
 **--FAQ end----------**
 
@@ -88,10 +92,11 @@ in case the startdriver option crashes your system or somehow doesnt work you ca
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 1. disable the driver signature enforcement on your system manually:
-        hold down shift while selecting Restart from the start menu, let it reboot until you see a blue screen
-        choose Troubleshoot > Advanced options > Startup Settings > Restart, let it reboot again
-        press F7 or 7 on your keyboard to select Disable driver signature enforcement, whatever it says on screen
-	if this explanation was bad then im sorry lol. you should search "how to disable driver signature enforcement on windows x" where x is your win version
+        - hold down shift while selecting Restart from the start menu, let it reboot until you see a blue screen
+        - choose Troubleshoot > Advanced options > Startup Settings > Restart, let it reboot again
+        - press F7 or 7 on your keyboard to select Disable driver signature enforcement, whatever it says on screen
+        
+	if this explanation was bad then im sorry lol. you should search "how to disable driver signature enforcement on windows x" where x is your win version.
 
 
 2. run kerneltoys with "-startdriver nodse" (or "-sa nodse")
