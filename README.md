@@ -36,9 +36,9 @@ kerneltoys.exe only and dont require the driver to be started.
 **A:** Sure, feel free to use it as long as you give credits, if you do a video about it for example please put the repository link in the description
 
 
-**Q:** Why is the source code not available?
+**Q:** Why is the source code so ugly?
 
-**A:** Im making it open source pretty soon, im just making the code a bit more readable for the public
+**A:** Im not an expert in C or winapi / the wdk, if you found issues in the source code there is no need to blame me, just tell me what to fix
 
 
 **Q:** HELPP!!! WHAT IS A NT NATIVE PATH???? HOW DO I USE THE DELETEKEY OPTION???
