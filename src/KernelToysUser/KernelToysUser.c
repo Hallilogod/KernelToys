@@ -66,9 +66,12 @@ int main(int argc, char *argv[])
 		}
 		if (writedse)
 		{
-
+			if(!(FileExists("kdu.exe") && FileExists("drv64.dll") && FileExists("KernelToysDriver.sys"))){
+							printf("kdu.exe, drv64.dll or KernelToysDriver.sys is missing\n");
+							return 1;
+						}
 			printf("Writing 0 to the DSE flags in kernel memory...\n");
-
+			
 			old = writeDSEFlags(1, 0);
 			if (old == -69)
 			{
@@ -161,7 +164,6 @@ int main(int argc, char *argv[])
 						if (i == 51)
 						{
 							printf("\nCould not write DSE flags, please read the section \"Manual driver setup:\" in the README.md\n");
-							printf("Please also make sure to have KernelToysDriver.sys, kdu.exe and drv64.dll in the same directory as %s\n", argv[0]);
 							exit(1);
 							break;
 						}

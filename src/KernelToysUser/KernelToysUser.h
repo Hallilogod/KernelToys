@@ -468,4 +468,12 @@ int ShowEleveationInfoBasedOnDeviceSecurityDescriptor(){
 	return 1;
 }
 
+BOOL FileExists(PSTR Path)
+{
+  DWORD dwAttrib = GetFileAttributesA(Path);
+
+  return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+         !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
 #endif
