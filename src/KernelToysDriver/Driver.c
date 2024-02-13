@@ -617,7 +617,6 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		}
 		IO_STATUS_BLOCK writeInformation;
 		Status = ZwWriteFile(dstHandle, NULL, NULL, NULL, &writeInformation, readDataBuffer, (ULONG)fileSize.QuadPart, NULL, NULL);
-		DbgPrint("Status: %X\n", Status);
 		ZwClose(srcHandle);
 		ZwClose(dstHandle);
 		ExFreePool(readDataBuffer);
