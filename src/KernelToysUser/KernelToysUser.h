@@ -9,13 +9,14 @@
 #define IOCTL_SYMBLINK CTL_CODE(FILE_DEVICE_UNKNOWN,          0x00000001, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_DELETEFILE CTL_CODE(FILE_DEVICE_UNKNOWN,        0x00000002, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_BUGCHECK CTL_CODE(FILE_DEVICE_UNKNOWN,          0x00000003, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_PPL CTL_CODE(FILE_DEVICE_UNKNOWN,                0x00000004, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_PPL CTL_CODE(FILE_DEVICE_UNKNOWN,               0x00000004, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CREATEFILE CTL_CODE(FILE_DEVICE_UNKNOWN,        0x00000005, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CREATEDIRECTORY CTL_CODE(FILE_DEVICE_UNKNOWN,   0x00000006, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_DELETEKEY CTL_CODE(FILE_DEVICE_UNKNOWN,         0x00000007, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CREATEKEY CTL_CODE(FILE_DEVICE_UNKNOWN,         0x00000008, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_UNLOADDRIVER CTL_CODE(FILE_DEVICE_UNKNOWN,      0x00000009, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CRITICALTHREAD CTL_CODE(FILE_DEVICE_UNKNOWN,    0x0000000a, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_COPYFILE CTL_CODE(FILE_DEVICE_UNKNOWN,          0x0000000b, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 #define PS_REQUEST_BREAKAWAY 1
 #define PS_NO_DEBUG_INHERIT 2
@@ -47,6 +48,10 @@ struct CRITICAL_THREAD_INFO {
 	int critical;
 };
 
+struct COPY_FILE_IOCTL {
+	PWCHAR srcFile;
+	PWCHAR dstFile;
+};
 
 typedef int(NTAPI *NtShutdownSystem)(int);
 
@@ -132,19 +137,19 @@ void printError(enum errorPrintValue error, int newline, int ext)
 	case EPVelevationRequired:
 		printf("Admin privilegies are required for this!");
 		break;
-
-	default:
+		default:
 		break;
 
-		if (newline)
+		
+	}
+	if (newline)
 		{
 			printf("\n");
 		}
 		if (ext)
 		{
-			exit(1);
+			ExitProcess(1);
 		}
-	}
 }
 
 int modifyStringWithErrorPrint(char *inputString, char *secondString, enum stringUpdate option, char **outputString)
@@ -461,7 +466,7 @@ NTSTATUS SetProcessIsCritical(HANDLE Handle, ULONG newValue)
 int ShowEleveationInfoBasedOnDeviceSecurityDescriptor(){
 	#ifdef KERNELTOYS_SECURE_DEVICE
 	if(!amIElevated()){
-		printError(EPVelevationRequired,0,0);
+		printError(EPVelevationRequired,0,1);
 		return 0;
 	}
 	#endif

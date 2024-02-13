@@ -675,6 +675,7 @@ int main(int argc, char *argv[])
 		printf("The operation succeeded!");
 	}
 	else if (strcmp(argv1ow, "criticalthread") == 0)
+
 	{
 		if (argc < 4)
 		{
@@ -712,6 +713,68 @@ int main(int argc, char *argv[])
 		sendIOCTL(IOCTL_CRITICALTHREAD, &threadInfo, sizeof(struct CRITICAL_THREAD_INFO));
 	}
 	
+	else if (strcmp(argv1ow, "copyfile") == 0)
+	{
+		if (argc < 4)
+		{
+			printf("Usage: %s copyfile <\"Full path to source file\"> <\"Full path to destination file\">\n", argv[0]);
+			return 1;
+		}
+		else
+		{
+			
+			ShowEleveationInfoBasedOnDeviceSecurityDescriptor();
+			
+			PWSTR srcPath;
+			PWSTR dstPath;
+
+			if (!StrToWStr(argv[2], &srcPath))
+			{
+				printError(EPVinvalidInput, 1, 0);
+				return 1;
+			}
+
+			if (srcPath == NULL)
+			{
+				printError(EPVmemoryAllocation, 1, 0);
+				return 1;
+			}
+			if (!StrToWStr(argv[3], &dstPath))
+			{
+				printError(EPVinvalidInput, 1, 0);
+				return 1;
+			}
+
+			if (srcPath == NULL)
+			{
+				printError(EPVmemoryAllocation, 1, 0);
+				return 1;
+			}
+			PWSTR fullSrcPath;
+			PWSTR fullDstPath;
+			
+			if(!modifyWideStringWithErrorPrint(srcPath,L"\\??\\",STUPprepend,&fullSrcPath)){
+				return 1;
+			}
+			if(!modifyWideStringWithErrorPrint(dstPath,L"\\??\\",STUPprepend,&fullDstPath)){
+				return 1;
+			}
+
+			struct COPY_FILE_IOCTL copyIoctl;
+			copyIoctl.srcFile = fullSrcPath;
+			copyIoctl.dstFile = fullDstPath;
+			free(srcPath);
+			free(dstPath);
+		
+			
+			printf("Sending the IOCTL to copy a file...\n");
+			sendIOCTL(IOCTL_COPYFILE, &copyIoctl, sizeof(struct COPY_FILE_IOCTL));
+			free(fullSrcPath);
+			free(fullDstPath);
+			
+			
+		}
+	}
 	else
 	{
 		printUsage(argv);

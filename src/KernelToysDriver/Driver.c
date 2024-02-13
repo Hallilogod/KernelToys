@@ -10,13 +10,15 @@
 #define IOCTL_SYMBLINK CTL_CODE(FILE_DEVICE_UNKNOWN,          0x00000001, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_DELETEFILE CTL_CODE(FILE_DEVICE_UNKNOWN,        0x00000002, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_BUGCHECK CTL_CODE(FILE_DEVICE_UNKNOWN,          0x00000003, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_PPL CTL_CODE(FILE_DEVICE_UNKNOWN,                0x00000004, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_PPL CTL_CODE(FILE_DEVICE_UNKNOWN,               0x00000004, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CREATEFILE CTL_CODE(FILE_DEVICE_UNKNOWN,        0x00000005, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CREATEDIRECTORY CTL_CODE(FILE_DEVICE_UNKNOWN,   0x00000006, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_DELETEKEY CTL_CODE(FILE_DEVICE_UNKNOWN,         0x00000007, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CREATEKEY CTL_CODE(FILE_DEVICE_UNKNOWN,         0x00000008, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_UNLOADDRIVER CTL_CODE(FILE_DEVICE_UNKNOWN,      0x00000009, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_CRITICALTHREAD CTL_CODE(FILE_DEVICE_UNKNOWN,    0x0000000a, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_COPYFILE CTL_CODE(FILE_DEVICE_UNKNOWN,          0x0000000b, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 
 PDEVICE_OBJECT pDevObj;
 UNICODE_STRING device, symbolicLink;
@@ -74,11 +76,6 @@ struct COPY_FILE_IOCTL {
 	PWCHAR dstFile;
 };
 
-struct COPY_MEMORY_IOCTL_INFO {
-	PVOID Destination;
-	PVOID Source;
-	SIZE_T Size;
-};
 ;
 
 
@@ -377,16 +374,27 @@ NTSTATUS TerminateProcessByPid(ULONG PID) {
 	return status;
 }
 
+NTSTATUS GetFileSize(HANDLE fileHandle, PLARGE_INTEGER size) {
+	NTSTATUS status;
+	IO_STATUS_BLOCK ioBlock;
+	FILE_STANDARD_INFORMATION fileInfo;
+	status = ZwQueryInformationFile(fileHandle, &ioBlock, &fileInfo, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);
+	if (!NT_SUCCESS(status)) {
+		return status;
+	}
+	*size = fileInfo.EndOfFile;
 
+	return status;
+}
 
 NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
-	
+
 	IoSetCancelRoutine(Irp, NULL);
 	NTSTATUS Status = STATUS_SUCCESS;
-	
+
 	PIO_STACK_LOCATION irpStack = IoGetCurrentIrpStackLocation(Irp);
 
-	     if (irpStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_SYMBLINK) {
+	if (irpStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_SYMBLINK) {
 
 		WCHAR* str = (WCHAR*)Irp->AssociatedIrp.SystemBuffer;
 		UNICODE_STRING symbolicLinkName;
@@ -442,11 +450,11 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		Status = IoCreateFileEx(&fileHandle, SYNCHRONIZE, &fileObjAttribs, &ioStatus, NULL, FILE_ATTRIBUTE_NORMAL,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			FILE_CREATE, FILE_NON_DIRECTORY_FILE, NULL, 0, CreateFileTypeNone, NULL, IO_IGNORE_SHARE_ACCESS_CHECK, NULL);
-		
+
 		if (NT_SUCCESS(Status)) {
 			ZwClose(fileHandle);
 		}
-		
+
 
 	}
 	else if (irpStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_CREATEDIRECTORY) {
@@ -466,11 +474,11 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		Status = IoCreateFileEx(&fileHandle, SYNCHRONIZE, &fileObjAttribs, &ioStatus, NULL, FILE_ATTRIBUTE_NORMAL,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			FILE_CREATE, FILE_DIRECTORY_FILE, NULL, 0, CreateFileTypeNone, NULL, IO_IGNORE_SHARE_ACCESS_CHECK, NULL);
-				
+
 		if (NT_SUCCESS(Status)) {
 			ZwClose(fileHandle);
 		}
-		
+
 	}
 	else if (irpStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_DELETEKEY) {
 		UNICODE_STRING KeyToDelete;
@@ -484,7 +492,7 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 			DeleteKeyFull(KeyHandle);
 			ZwClose(KeyHandle);
 		}
-		
+
 
 
 	}
@@ -502,7 +510,7 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 			Status = (option == REG_CREATED_NEW_KEY) ? STATUS_SUCCESS : STATUS_OBJECT_NAME_EXISTS;
 			ZwClose(KeyHandle);
 		}
-		
+
 
 
 	}
@@ -520,10 +528,102 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 			Status = ZwSetInformationThread(threadHandle, ThreadBreakOnTermination, &threadInfo->critical, sizeof(int));
 			ZwClose(threadHandle);
 		}
-		
+
 
 	}
-	
+	else if (irpStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_COPYFILE) {
+
+
+		struct COPY_FILE_IOCTL* Buffer = (struct COPY_FILE_IOCTL*)Irp->AssociatedIrp.SystemBuffer;
+		UNICODE_STRING sourcePath;
+		UNICODE_STRING destPath;
+		OBJECT_ATTRIBUTES destFileObjAttribs;
+		OBJECT_ATTRIBUTES sourceFileObjAttribs;
+		HANDLE srcHandle;
+		HANDLE dstHandle;
+		IO_STATUS_BLOCK srcBlock;
+		IO_STATUS_BLOCK dstBlock;
+		RtlInitUnicodeString(&sourcePath, Buffer->srcFile);
+		RtlInitUnicodeString(&destPath, Buffer->dstFile);
+
+
+		InitializeObjectAttributes(&sourceFileObjAttribs, &sourcePath,
+			OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+			NULL, NULL);
+		InitializeObjectAttributes(&destFileObjAttribs, &destPath,
+			OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+			NULL, NULL);
+
+
+
+
+
+		Status = IoCreateFileEx(&srcHandle,
+			FILE_READ_DATA | SYNCHRONIZE,
+			&sourceFileObjAttribs, &srcBlock,
+			NULL, FILE_ATTRIBUTE_NORMAL,
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			FILE_OPEN, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+			NULL, 0,
+			CreateFileTypeNone, NULL,
+			IO_IGNORE_SHARE_ACCESS_CHECK,
+			NULL);
+		if (!NT_SUCCESS(Status)) {
+			IoCompleteRequest(Irp, IO_NO_INCREMENT);
+			return Status;
+		}
+		Status = IoCreateFileEx(&dstHandle,
+			FILE_WRITE_DATA | SYNCHRONIZE,
+			&destFileObjAttribs, &dstBlock,
+			NULL, FILE_ATTRIBUTE_NORMAL,
+			0,
+			FILE_SUPERSEDE, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+			NULL, 0,
+			CreateFileTypeNone, NULL,
+			IO_IGNORE_SHARE_ACCESS_CHECK,
+			NULL);
+
+		if (!NT_SUCCESS(Status)) {
+			ZwClose(srcHandle);
+			IoCompleteRequest(Irp, IO_NO_INCREMENT);
+			return Status;
+		}
+		LARGE_INTEGER fileSize;
+		Status = GetFileSize(srcHandle, &fileSize);
+
+		if (!NT_SUCCESS(Status)) {
+			ZwClose(srcHandle);
+			ZwClose(dstHandle);
+			IoCompleteRequest(Irp, IO_NO_INCREMENT);
+			return Status;
+		}
+		
+		PVOID readDataBuffer = ExAllocatePool2(POOL_FLAG_NON_PAGED, fileSize.QuadPart, 'YPOC');
+		if (readDataBuffer == NULL) {
+			ZwClose(srcHandle);
+			ZwClose(dstHandle);
+			IoCompleteRequest(Irp, IO_NO_INCREMENT);
+			return Status;
+		}
+
+		IO_STATUS_BLOCK readInformation;
+		Status = ZwReadFile(srcHandle, NULL, NULL, NULL, &readInformation, readDataBuffer, (ULONG)fileSize.QuadPart, NULL, NULL);
+		if (!NT_SUCCESS(Status) && Status != STATUS_END_OF_FILE) {
+			ExFreePool(readDataBuffer);
+			ZwClose(srcHandle);
+			ZwClose(dstHandle);
+			IoCompleteRequest(Irp, IO_NO_INCREMENT);
+			return Status;
+		}
+		IO_STATUS_BLOCK writeInformation;
+		Status = ZwWriteFile(dstHandle, NULL, NULL, NULL, &writeInformation, readDataBuffer, (ULONG)fileSize.QuadPart, NULL, NULL);
+		DbgPrint("Status: %X\n", Status);
+		ZwClose(srcHandle);
+		ZwClose(dstHandle);
+		ExFreePool(readDataBuffer);
+	}
+
+
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 	return Status;
 
