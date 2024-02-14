@@ -19,6 +19,7 @@ void printUsage(char *argv[])
 	printf("  ppl <PID> <none|light|full|max> (<Hex:ProtectionMemberOffset>)   sets a protection level for the given process.\n");
 	printf("  criticalthread <TID> <true|false>             Makes a thread critical or not critical\n");
 	printf("  createfile <\"Full path to file\">              Creates a new file, if the file already exists it fails\n");
+	printf("  copyfile <\"source file\"> <\"dest file\">        Copies a file, if the destination file already exists it will be overwritten.\n" );
 	printf("  deletefile <\"Full path to file\">              Force deletes nearly any file\n");
 	printf("  createdir <\"Full path to directory\">          Creates a new directory, if the directory already exists it fails\n");
 	printf("  createkey <\"Native NT path to registry key\">  Creates a registry key\n");
