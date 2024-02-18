@@ -1,3 +1,6 @@
+// Protection offset defines from the KDU project
+
+
 #pragma once
 
 

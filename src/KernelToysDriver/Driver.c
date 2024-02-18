@@ -1,7 +1,8 @@
 #pragma warning (disable : 4100 4047 4024)
 
 
-//If you want the kerneltoys kernel options to be usable without admin privilegies, remove this define, remember that then unprivilegied normal processes can abuse this
+/*If you want the kerneltoys kernel options to be usable without admin privilegies, remove this define
+remember that then unprivilegied normal processes can abuse this*/
 #define KERNELTOYS_SECURE_DEVICE
 
 
@@ -278,6 +279,7 @@ NTSTATUS DeleteKeyFull(HANDLE ParentKey) {
 	return STATUS_SUCCESS;
 }
 
+
 NTSTATUS MakeProcessPP(ULONG PID, ULONG_PTR ProtectionOffset, int level) {
 	NTSTATUS status;
 
@@ -505,7 +507,7 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		HANDLE KeyHandle;
 		ULONG option;
 		Status = ZwCreateKey(&KeyHandle, KEY_ALL_ACCESS, &KeyObjAttribs, NULL, NULL, REG_OPTION_NON_VOLATILE, &option);
-		DbgPrint("status: %lu\n", Status);
+
 		if (NT_SUCCESS(Status)) {
 			Status = (option == REG_CREATED_NEW_KEY) ? STATUS_SUCCESS : STATUS_OBJECT_NAME_EXISTS;
 			ZwClose(KeyHandle);
@@ -621,7 +623,9 @@ NTSTATUS IOCTLHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		ZwClose(dstHandle);
 		ExFreePool(readDataBuffer);
 	}
-
+	
+	
+	
 
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 	return Status;
@@ -662,7 +666,7 @@ void DriverUnload(IN PDRIVER_OBJECT pDriverObj)
 
 
 #ifdef KERNELTOYS_SECURE_DEVICE
-#pragma comment(lib,"Wdmsec.lib")
+#pragma comment(lib, "Wdmsec.lib")
 #include <wdmsec.h>
 #endif
 NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriverObj, IN PUNICODE_STRING RegistryPath)
