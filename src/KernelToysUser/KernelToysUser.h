@@ -228,8 +228,6 @@ for(DWORD i =0;i<arrayLength;i++){
 void PrintBitFlags(int flags, struct BitStruct pair[], int BUFLEN, int PAIRLEN)
 {
 
-
-
     char buf[BUFLEN];
     char *write = buf;  
     int i;

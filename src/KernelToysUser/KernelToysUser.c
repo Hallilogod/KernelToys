@@ -1,11 +1,12 @@
 // remove this define if you removed it in the driver
-// #define KERNELTOYS_SECURE_DEVICE
+ #define KERNELTOYS_SECURE_DEVICE
 
 #include "KernelToysUser.h"
 
 void printUsage(char *argv[])
 {
-
+	printf("%d\n",getBuildNum());
+	printf("%X\n",autoProtectionOffset());
 	printf("Usage: %s <option> (<arguments>)\n", argv[0]);
 	printf("Driver Options:\n");
 	printf("  -startdriver                         Starts the kerneltoys driver, this is REQUIRED before using any of the kernel options.\n");
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
 		printf("--Welcome to KernelToys---\n\n");
 
 		printUsage(argv);
-		return 0;
+		ExitProcess(0);
 	}
 
 	char *argv1ow = _strdup(argv[1]);
