@@ -1,3 +1,8 @@
+# WARNING: 
+This is a project i am very proud of, yet it is embarrasing (take a peek at the source code if you want to know what i mean). The code and structure of this project is very very ugly 
+because i started writing it when i was still very inexperienced with C and this project grew and grew while i didn't ever plan it to become this big for a long time. I have planned 
+to re-write this and do a big cleanup in the future but for now i just want to put this here. The project isn't "bad" or "broken", its just very unreadable source code with ugly shit.
+
 # Welcome to kerneltoys!
 
 To get a quick overview, run kerneltoys.exe without arguments in a Command Prompt.
