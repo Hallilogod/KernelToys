@@ -1,5 +1,7 @@
 # Welcome to kerneltoys!
 
+**KERNELTOYS 2.0 IS OUT 🔥🥳🎉🎉**
+
 To get a quick overview, run kerneltoys.exe without arguments in a Command Prompt.
 
 KernelToys is a CLI toolbox that is split into two parts: the usermode executable (KernelToys.exe) and a kernel driver (KernelToysDriver.sys).
