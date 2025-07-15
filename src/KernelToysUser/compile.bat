@@ -1,1 +1,0 @@
-gcc KernelToysUser.c -Wall -s -O3 -o KernelToys.exe                                                                              

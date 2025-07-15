@@ -1,0 +1,12 @@
+/src/KernelToysDriver/x64
+.*
+!.gitignore
+!.git/
+*.exe
+*.res
+*.dll
+*.o
+*.a
+*.d
+*.gch
+*.pch

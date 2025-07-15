@@ -1,6 +1,4 @@
-// Protection offset defines from the KDU project
-
-
+// Protection offset definitions from the KDU project
 #pragma once
 
 
@@ -67,16 +65,14 @@
 // Windows 11 22H2
 #define NT_WIN11_22H2           22621
 
+// Windows 11 23H2
 #define NT_WIN11_23H2           22631
-// Windows 11 Active Develepment Branch
-#define NT_WIN11_DEV            23575
-#define NT_WIN11_24H2           25905 //canary (24H2)
 
+// Windows 11 24H2
+#define NT_WIN11_24H2           26100
 
-
-
-
-
+// Windows 11 Active Development Branch
+#define NT_WIN11_25H2           27842 //canary (25H2)
 
 
 

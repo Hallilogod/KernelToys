@@ -1,0 +1,1 @@
+gcc *.c Tools/*.c -Wall -Wpedantic -municode -lntdll -o KernelToys.exe

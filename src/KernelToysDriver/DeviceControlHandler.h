@@ -1,0 +1,14 @@
+#pragma once
+
+typedef NTSTATUS (*IOCTL_DISPATCH_ROUTINE)(PIRP pIrp);
+
+
+typedef struct _IOCTL_DISPATCH_ENTRY
+{
+	ULONG ioctlCode;
+	IOCTL_DISPATCH_ROUTINE handlerFunction;
+} IOCTL_DISPATCH_ENTRY, PIOCTL_DISPATCH_ENTRY;
+
+
+
+NTSTATUS DeviceControlHandler(PDEVICE_OBJECT DeviceObject, PIRP Irp);
