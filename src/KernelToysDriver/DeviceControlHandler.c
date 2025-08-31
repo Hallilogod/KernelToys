@@ -24,7 +24,7 @@ IOCTL_DISPATCH_ENTRY ioctlDispatchRoutineArray[] =
 
 NTSTATUS DeviceControlHandler(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
 {
-	NTSTATUS status = STATUS_SUCCESS;
+	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
 	PIO_STACK_LOCATION irpStack = NULL;
 	ULONG ioctlCode = 0;
 
@@ -40,13 +40,14 @@ NTSTATUS DeviceControlHandler(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
 		if (ioctlDispatchRoutineArray[i].ioctlCode == ioctlCode)
 		{
 			status = (ioctlDispatchRoutineArray[i].handlerFunction)(pIrp);
+
+			break;
 		}
 	}
 
 
 	pIrp->IoStatus.Status = status;
 	pIrp->IoStatus.Information = 0;
-	pIrp->IoStatus.Pointer = NULL;
 
 	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 

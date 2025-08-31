@@ -196,7 +196,7 @@ NTSTATUS CreateFileIoctlHandler(PIRP pIrp)
 		FILE_ATTRIBUTE_NORMAL,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 		FILE_CREATE,
-		FILE_NON_DIRECTORY_FILE,
+		FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
 		NULL,
 		0,
 		CreateFileTypeNone,
@@ -205,12 +205,14 @@ NTSTATUS CreateFileIoctlHandler(PIRP pIrp)
 		NULL);
 
 
-	if (NT_SUCCESS(status))
+	if (!NT_SUCCESS(status))
 	{
 		DBGERRNTSTATUS("IoCreateFileEx", status);
+	}
+	else
+	{
 		ZwClose(fileHandle);
 	}
-
 
 	return status;
 }
@@ -242,7 +244,7 @@ NTSTATUS CreateDirectoryIoctlHandler(PIRP pIrp)
 		FILE_ATTRIBUTE_NORMAL,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 		FILE_CREATE,
-		FILE_DIRECTORY_FILE,
+		FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
 		NULL,
 		0,
 		CreateFileTypeNone,

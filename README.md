@@ -1,4 +1,4 @@
-# Welcome to kerneltoys!
+# Welcome to KernelToys!
 
 **KERNELTOYS 2.0 IS OUT 🔥🥳🎉🎉**
 
