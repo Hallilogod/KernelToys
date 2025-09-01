@@ -19,6 +19,7 @@ IOCTL_DISPATCH_ENTRY ioctlDispatchRoutineArray[] =
 	{IOCTL_MINIMAL_PROCESS,		MinimalProcessIoctlHandler},
 	{IOCTL_TRIPLE_FAULT,		TripleFaultIoctlHandler},
 	{IOCTL_INJECT_SHELLCODE,	InjectShellcodeIoctlHandler},
+	{IOCTL_PORT_IO,				PortIoIoctlHandler}
 };
 
 
@@ -34,6 +35,7 @@ NTSTATUS DeviceControlHandler(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
 
 	ioctlCode = irpStack->Parameters.DeviceIoControl.IoControlCode;
 
+	pIrp->IoStatus.Information = 0;
 
 	for (size_t i = 0; i < ARRAYSIZE(ioctlDispatchRoutineArray); i++)
 	{
@@ -45,9 +47,7 @@ NTSTATUS DeviceControlHandler(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
 		}
 	}
 
-
 	pIrp->IoStatus.Status = status;
-	pIrp->IoStatus.Information = 0;
 
 	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 

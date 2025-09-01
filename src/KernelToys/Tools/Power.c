@@ -81,11 +81,11 @@ BOOL ReturnToFirmwareToyHandler(LPWSTR arguments[], UINT argumentCount)
 
     INFO("Sending device control to perform power operation...");
 
-    return DeviceControlDriver(IOCTL_RET_FIRMWARE, &powerOperation, sizeof(powerOperation));
+    return DeviceControlDriver(IOCTL_RET_FIRMWARE, &powerOperation, sizeof(powerOperation), NULL, 0);
 }
 
 BOOL TripleFaultToyHandler(LPWSTR arguments[], UINT argumentCount)
 {
     // System cutely fucking dies ^-^
-    return DeviceControlDriver(IOCTL_TRIPLE_FAULT, NULL, 0);
+    return DeviceControlDriver(IOCTL_TRIPLE_FAULT, NULL, 0, NULL, 0);
 }

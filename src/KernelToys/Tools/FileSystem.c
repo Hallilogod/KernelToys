@@ -4,14 +4,14 @@ BOOL CreateFileToyHandler(LPWSTR arguments[], UINT argumentCount)
 {
     INFO("Sending device control to create file '%ls'...", arguments[1]);
 
-    return DeviceControlDriver(IOCTL_CREATE_FILE, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR));
+    return DeviceControlDriver(IOCTL_CREATE_FILE, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR), NULL, 0);
 }
 
 BOOL CreateDirectoryToyHandler(LPWSTR arguments[], UINT argumentCount)
 {
     INFO("Sending device control to create directory '%ls'...", arguments[1]);
 
-    return DeviceControlDriver(IOCTL_CREATE_DIRECTORY, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR));
+    return DeviceControlDriver(IOCTL_CREATE_DIRECTORY, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR), NULL, 0);
 }
 
 BOOL CopyFileToyHandler(LPWSTR arguments[], UINT argumentCount)
@@ -20,12 +20,12 @@ BOOL CopyFileToyHandler(LPWSTR arguments[], UINT argumentCount)
 
     INFO("Sending device control to copy file...");
  
-    return DeviceControlDriver(IOCTL_COPY_FILE, &deviceControlParameters, sizeof(deviceControlParameters));
+    return DeviceControlDriver(IOCTL_COPY_FILE, &deviceControlParameters, sizeof(deviceControlParameters), NULL, 0);
 }
 
 BOOL DeleteFileToyHandler(LPWSTR arguments[], UINT argumentCount)
 {
     INFO("Sending device control to delete file '%ls'...", arguments[1]);
 
-    return DeviceControlDriver(IOCTL_DELETE_FILE, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR));
+    return DeviceControlDriver(IOCTL_DELETE_FILE, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR), NULL, 0);
 }

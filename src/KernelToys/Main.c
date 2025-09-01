@@ -23,6 +23,7 @@ TOOL tools[] =
     MAKE_KERNEL_TOOL(L"minimalprocess", L"<\"process name\">", 1, L"Creates a minimal process", MinimalProcessToyHandler),
     MAKE_KERNEL_TOOL(L"triplefault", L"", 0, L"Triple faults the CPU", TripleFaultToyHandler),
     MAKE_KERNEL_TOOL(L"injectshellcode", L"<PID> <\"Shellcode file path\">", 2, L"Injects and runs shellcode in the target process", InjectShellcodeToyHandler),
+    MAKE_KERNEL_TOOL(L"portio", L"[in|out] [byte|word|dword] <Hex:I/O Port Address> (<Hex:Value to write>)", 3, L"Reads/Writes to the specified I/O port in the I/O address space", PortIoToyHandler),
 
     // Usermode Tools
     MAKE_USER_TOOL(L"ntshutdown", L"[shutdown|reboot|biosshutdown]", 1, L"Performs power operations using NtShutdownSystem", FALSE, NtShutdownToyHandler),

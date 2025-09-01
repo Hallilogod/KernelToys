@@ -34,4 +34,4 @@ SC_HANDLE StopDriverService(_Out_ SERVICE_STATUS* pDriverServiceStatus);
 
 BOOL DeleteDriverService(SC_HANDLE driverServiceHandle);
 
-BOOL DeviceControlDriver(DWORD ioctlCode, PVOID ioctlInfo, SIZE_T ioctlInfoSizeBytes);
+BOOL DeviceControlDriver(DWORD ioctlCode, PVOID ioctlInputBuffer, SIZE_T ioctlInputBufferSizeBytes, _Out_opt_ PVOID ioctlOutputBuffer, _Out_ LPDWORD ioctlOutputBufferSizeBytes);

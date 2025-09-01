@@ -85,7 +85,7 @@ BOOL TerminateProcessToyHandler(LPWSTR arguments[], UINT argumentCount)
 
     INFO("Sending device control to terminate process %lu...", processPid);
 
-    return DeviceControlDriver(IOCTL_TERMINATE_PROCESS, &processPid, sizeof(processPid));
+    return DeviceControlDriver(IOCTL_TERMINATE_PROCESS, &processPid, sizeof(processPid), NULL, 0);
 }
 
 BOOL ProtectProcessToyHandler(LPWSTR arguments[], UINT argumentCount)
@@ -158,7 +158,7 @@ BOOL ProtectProcessToyHandler(LPWSTR arguments[], UINT argumentCount)
 
     INFO("Sending device control to patch protection of process %lu...", targetProcessPid);
 
-    return DeviceControlDriver(IOCTL_PROTECT_PROCESS, &pplParameters, sizeof(pplParameters));
+    return DeviceControlDriver(IOCTL_PROTECT_PROCESS, &pplParameters, sizeof(pplParameters), NULL, 0);
 }
 
 BOOL CriticalThreadToyHandler(LPWSTR arguments[], UINT argumentCount)
@@ -196,14 +196,14 @@ BOOL CriticalThreadToyHandler(LPWSTR arguments[], UINT argumentCount)
 
     INFO("Sending device control to set thread information of thread %ld...", tid);
 
-    return DeviceControlDriver(IOCTL_CRITICAL_THREAD, &deviceControlParameters, sizeof(deviceControlParameters));
+    return DeviceControlDriver(IOCTL_CRITICAL_THREAD, &deviceControlParameters, sizeof(deviceControlParameters), NULL, 0);
 }
 
 BOOL MinimalProcessToyHandler(LPWSTR arguments[], UINT argumentCount)
 {
     INFO("Sending device control to create minimal process '%ls'", arguments[1]);
 
-	return DeviceControlDriver(IOCTL_MINIMAL_PROCESS, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR));
+	return DeviceControlDriver(IOCTL_MINIMAL_PROCESS, arguments[1], (wcslen(arguments[1]) + 1) * sizeof(WCHAR), NULL, 0);
 }
 
 BOOL InjectShellcodeToyHandler(LPWSTR arguments[], UINT argumentCount)
@@ -296,7 +296,7 @@ BOOL InjectShellcodeToyHandler(LPWSTR arguments[], UINT argumentCount)
     deviceControlParameters.ShellcodeBufferSizeBytes = bytesRead;
     deviceControlParameters.Pid = targetProcessPid;
 
-    returnValue = DeviceControlDriver(IOCTL_INJECT_SHELLCODE, &deviceControlParameters, sizeof(deviceControlParameters));
+    returnValue = DeviceControlDriver(IOCTL_INJECT_SHELLCODE, &deviceControlParameters, sizeof(deviceControlParameters), NULL, 0);
 
     free(shellcodeBuffer);
 
@@ -511,7 +511,8 @@ BOOL TokengrabToyHander(LPWSTR arguments[], UINT argumentCount)
             INFO("Enabling selected privileges for new process token...");
 
             LPWSTR userPrivilegeList = _wcsdup(arguments[3]); // CAREFUL: ---- HIDDEN MALLOC IN WCSDUP
-
+            
+          
             LPWSTR currentPrivilege = wcstok(userPrivilegeList, L",");
             
             while(currentPrivilege != NULL)

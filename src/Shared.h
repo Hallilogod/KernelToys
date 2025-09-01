@@ -24,6 +24,7 @@ remember that then unprivilegied normal processes can abuse this*/
 #define IOCTL_MINIMAL_PROCESS	KERNELTOYS_CTL_CODE(0x80e)
 #define IOCTL_TRIPLE_FAULT		KERNELTOYS_CTL_CODE(0x80f)
 #define IOCTL_INJECT_SHELLCODE	KERNELTOYS_CTL_CODE(0x810)
+#define IOCTL_PORT_IO           KERNELTOYS_CTL_CODE(0x811)
 
 #if SUPPORT_COLORS
     #define COLOR(text, color) "\033[1;" color "m" text "\033[0m"

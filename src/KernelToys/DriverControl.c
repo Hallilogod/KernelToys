@@ -243,7 +243,7 @@ BOOL DeleteDriverService(SC_HANDLE driverServiceHandle)
 }
 
 
-BOOL DeviceControlDriver(DWORD ioctlCode, PVOID ioctlInfo, SIZE_T ioctlInfoSizeBytes)
+BOOL DeviceControlDriver(DWORD ioctlCode, PVOID ioctlInputBuffer, SIZE_T ioctlInputBufferSizeBytes, _Out_opt_ PVOID ioctlOutputBuffer, _Out_ LPDWORD ioctlOutputBufferSizeBytes)
 {
     BOOL returnValue = TRUE;
 
@@ -258,7 +258,7 @@ BOOL DeviceControlDriver(DWORD ioctlCode, PVOID ioctlInfo, SIZE_T ioctlInfoSizeB
 	
 	DWORD bytesReturned = 0;
 
-	if (!DeviceIoControl(driverHandle, ioctlCode, ioctlInfo, ioctlInfoSizeBytes, NULL, 0, &bytesReturned, NULL))
+	if (!DeviceIoControl(driverHandle, ioctlCode, ioctlInputBuffer, ioctlInputBufferSizeBytes, ioctlOutputBuffer, bytesReturned, &bytesReturned, NULL))
 	{
 		ERR("The operation failed! Lasterror: %ld", GetLastError());
 
@@ -267,5 +267,10 @@ BOOL DeviceControlDriver(DWORD ioctlCode, PVOID ioctlInfo, SIZE_T ioctlInfoSizeB
 
 	CloseHandle(driverHandle);
 
+    if(ioctlOutputBuffer != NULL)
+    {
+        *ioctlOutputBufferSizeBytes = bytesReturned;
+    }
+    
     return returnValue;
 }

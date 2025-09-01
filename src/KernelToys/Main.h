@@ -1,4 +1,5 @@
 #pragma once
+#define _CRT_NON_CONFORMING_WCSTOK
 
 #include <stdio.h>
 #include <Windows.h>
