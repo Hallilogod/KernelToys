@@ -27,7 +27,7 @@ BOOL NtShutdownToyHandler(LPWSTR arguments[], UINT argumentCount)
         return FALSE;
     }
 
-    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, ownTokenHandle))
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &ownTokenHandle))
     {
         ERR("Failed to open own process token, lasterror: %ld", GetLastError());
         return FALSE;
