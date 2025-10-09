@@ -9,15 +9,22 @@ NTSTATUS DeleteKeyFull(HANDLE parentKeyHandle)
 	OBJECT_ATTRIBUTES			objectAttributes = { 0 };
 	UNICODE_STRING				objectName = { 0 };
 	HANDLE						childKey = NULL;
-
-	status = STATUS_SUCCESS;
-	ULONG idxKey = 0;
-	ULONG sizeReturned = 0;
+	ULONG						sizeReturned = 0;
 
 	while (1)
 	{
+		status = ZwEnumerateKey(parentKeyHandle, 0, KeyBasicInformation, NULL, 0, &sizeReturned);
 
-		ZwEnumerateKey(parentKeyHandle, idxKey, KeyBasicInformation, NULL, 0, &sizeReturned);
+		if (!NT_SUCCESS(status))
+		{
+			if (status == STATUS_NO_MORE_ENTRIES)
+			{
+				status = STATUS_SUCCESS;
+				break;
+			}
+
+			return status;
+		}
 
 		keyInfo = (PKEY_BASIC_INFORMATION)ExAllocatePool2(POOL_FLAG_NON_PAGED, (SIZE_T)sizeReturned, 'DLKY');
 
@@ -30,24 +37,17 @@ NTSTATUS DeleteKeyFull(HANDLE parentKeyHandle)
 
 		status = ZwEnumerateKey(
 			parentKeyHandle,
-			idxKey,
+			0,
 			KeyBasicInformation,
 			keyInfo,
 			sizeReturned,
 			&outLength);
 
-
-		idxKey++;
-
-		if (status == STATUS_NO_MORE_ENTRIES)
-		{
-			status = STATUS_SUCCESS;
-			break;
-		}
-		if (status != STATUS_SUCCESS)
+		if(!NT_SUCCESS(status))
 		{
 			ExFreePool(keyInfo);
-			return STATUS_SUCCESS;
+
+			return status;
 		}
 
 		//	Open subkey
@@ -61,34 +61,32 @@ NTSTATUS DeleteKeyFull(HANDLE parentKeyHandle)
 			parentKeyHandle,
 			NULL);
 
-		status = ZwOpenKey(&childKey, KEY_ALL_ACCESS, &objectAttributes);
+		status = ZwOpenKey(&childKey, DELETE | KEY_ENUMERATE_SUB_KEYS, &objectAttributes);
+
+		ExFreePool(keyInfo);
+
 
 		if (!NT_SUCCESS(status))
 		{
-			ExFreePool(keyInfo);
-			continue;
+			return status;
 		}
+
 
 		status = DeleteKeyFull(childKey);
 
+
 		if (!NT_SUCCESS(status))
 		{
-			ExFreePool(keyInfo);
 			ZwClose(childKey);
-			continue;
+
+			return status;
 		}
 
-		status = ZwDeleteKey(childKey);
 
 		ZwClose(childKey);
-
-		idxKey--;
-
 	}
-
-	ExFreePool(keyInfo);
-	ZwDeleteKey(parentKeyHandle);
-	return STATUS_SUCCESS;
+	
+	return ZwDeleteKey(parentKeyHandle);
 }
 
 
@@ -143,9 +141,16 @@ NTSTATUS DeleteKeyIoctlHandler(PIRP pIrp)
 	if (!NT_SUCCESS(status))
 	{
 		DBGERRNTSTATUS("ZwOpenKey", status);
+
+		return status;
 	}
 
 	status = DeleteKeyFull(keyHandle);
+
+	if (!NT_SUCCESS(status))
+	{
+		DBGERRNTSTATUS("DeleteKeyFull", status);
+	}
 
 	ZwClose(keyHandle);
 

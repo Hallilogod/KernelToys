@@ -27,7 +27,6 @@ NTSTATUS DeleteFile_IoComplete(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID ct
 	pIrp->UserIosb->Information = pIrp->IoStatus.Information;
 
 	KeSetEvent(pIrp->UserEvent, IO_NO_INCREMENT, FALSE);
-	IoFreeIrp(pIrp);
 
 	return STATUS_MORE_PROCESSING_REQUIRED;
 }
@@ -54,7 +53,7 @@ NTSTATUS DeleteFile_SendIrp(PFILE_OBJECT pFileObject)
 		TRUE);
 
 
-	FILE_DISPOSITION_INFORMATION_EX dispositionInformation;
+	FILE_DISPOSITION_INFORMATION_EX dispositionInformation = { 0 };
 
 	dispositionInformation.Flags =
 		FILE_DISPOSITION_DELETE |
@@ -62,7 +61,7 @@ NTSTATUS DeleteFile_SendIrp(PFILE_OBJECT pFileObject)
 		FILE_DISPOSITION_POSIX_SEMANTICS;
 
 
-	IO_STATUS_BLOCK irpIoStatusBlock;
+	IO_STATUS_BLOCK irpIoStatusBlock = { 0 };
 	pIrp->AssociatedIrp.SystemBuffer = &dispositionInformation;
 	pIrp->UserEvent = &irpCompletionEvent;
 
@@ -85,14 +84,16 @@ NTSTATUS DeleteFile_SendIrp(PFILE_OBJECT pFileObject)
 
 	status = IoCallDriver(pBaseFsDeviceObject, pIrp);
 
-	if (!NT_SUCCESS(status))
+	if (status == STATUS_PENDING)
 	{
-		DBGERRNTSTATUS("IoCallDriver", status);
+		KeWaitForSingleObject(&irpCompletionEvent, Executive, KernelMode, TRUE, NULL);
 	}
 
-	KeWaitForSingleObject(&irpCompletionEvent, Executive, KernelMode, TRUE, NULL);
+	status = pIrp->IoStatus.Status;
 
-	return pIrp->IoStatus.Status;
+	IoFreeIrp(pIrp);
+
+	return status;
 }
 
 
